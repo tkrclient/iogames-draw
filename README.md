@@ -2,10 +2,10 @@
 
 ![png](screenshots/screenshot.png)
 
-# Features of this whiteboard
+## Features of this whiteboard
 - can change color
 
-# Whiteboard Example
+## Whiteboard Example
 
 This application shows how to use the
 [websocket](https://github.com/gorilla/websocket) [package](https://github.com/chapin666/simple-drawing-backend) to implement a simple
