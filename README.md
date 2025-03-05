@@ -6,7 +6,7 @@
 
 - can change color
 
-# Chat Example
+# Drawing Example
 
 This application shows how to use the
 [websocket](https://github.com/gorilla/websocket) [package](https://github.com/chapin666/simple-drawing-backend) to implement a simple
