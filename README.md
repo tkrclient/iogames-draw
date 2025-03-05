@@ -1,4 +1,4 @@
-## What this actually looks like
+## What this whiteboard actually looks like
 
 ![png](screenshots/screenshot.png)
 
