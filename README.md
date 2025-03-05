@@ -17,5 +17,4 @@ $ go build -o server && ./server
 $ go run *.go
 ```
 
-Open home.html in your browser.
-
+To use the Drawing example, open http://localhost:8080/ in your browser.
