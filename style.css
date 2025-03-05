@@ -1,0 +1,80 @@
+body {
+	background-color: grey;
+}
+
+.colors {
+/*  position: fixed; */
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin-left: 10px;
+    margin-top: 10px;
+}
+
+.color {
+  display: inline-block;
+  height: 48px;
+  width: 48px;
+}
+
+#colorpicker { 
+	border-radius: 10px; 
+	width: 48px;
+    height: 48px;
+    background-color: black;
+}
+
+.color.black { 
+	background-color: black; 
+	border-radius: 10px; 
+}
+.color.red { 
+	background-color: red; 
+	border-radius: 10px; 
+}
+.color.green { 
+	background-color: green; 
+	border-radius: 10px; 
+}
+.color.blue { 
+	background-color: blue; 
+	border-radius: 10px; 
+}
+.color.yellow { 
+	background-color: yellow; 
+	border-radius: 10px; 
+}
+
+#color-eraser {
+    width: 48px;
+    position: absolute;
+    left: 55px;
+    height: 48px;
+    top: 0px;
+    border-radius: 25px;
+    background-color: rgba(0, 0, 0, .75);
+    font-weight: 600;
+    font-size: 30px;
+    text-align: center;
+    align-content: center;
+}
+
+#wipe-button {
+  position: absolute;
+  top: 50px;
+  border-radius: 8px;
+  opacity: 40%;
+  color: white;
+  background-color: black;
+  left: 1px;
+}
+
+.whiteboard {
+	height: 100%;
+	width: 100%;
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	top: 0;
+}
