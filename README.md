@@ -1,4 +1,4 @@
-### What this actually looks like
+## What this actually looks like
 
 ![png](screenshots/screenshot.png)
 
@@ -6,7 +6,13 @@
 
 - can change color
 
-### Running
+# Chat Example
+
+This application shows how to use the
+[websocket](https://github.com/gorilla/websocket) [package](https://github.com/chapin666/simple-drawing-backend) to implement a simple
+drawing application.
+
+## Running
 
 Buld and run the server.
 
