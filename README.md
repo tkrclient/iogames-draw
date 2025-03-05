@@ -1,3 +1,7 @@
+### What this actually looks like
+
+![png](screenshots/screenshot.png)
+
 # iogames drawing
 
 - can change color
@@ -15,6 +19,3 @@ $ go run *.go
 
 Open home.html in your browser.
 
-### Snapshot
-
-![screenshot](snap.gif)
