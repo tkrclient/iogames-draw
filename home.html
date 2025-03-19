@@ -1,19 +1,20 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Whiteboard example</title>
-	<script src="script.js"></script>
-    <link href="style.css" rel="stylesheet">
+  <meta charset="UTF-8">
+  <title>Drawing example</title>
+  <script src="script.js"></script>
+  <link href="style.css" rel="stylesheet">
 </head>
 <body>
-    <canvas id="whiteboard" width="2560" height="2560"> </canvas>
-	<div class="colors">
-		<div id="colorpicker"></div>
-		<i class="fa fa-eraser" id="color-eraser"></i>
-		<button id="wipe-button">Wipe Whiteboard</button>
-	</div>
+
+  <canvas class="whiteboard"></canvas>
+
+  <div class="colors">
+    <div class="colorpicker"></div>
+    <i class="fa fa-eraser" id="eraser"></i>
+    <button id="wipe">Wipe Whiteboard</button>
+  </div>
+
 </body>
 </html>

@@ -1,210 +1,279 @@
-MESSAGE_CONNECTED = 1;
-MESSAGE_USER_JOINED = 2;
-MESSAGE_USER_LEFT = 3;
-MESSAGE_STROKE = 4;
-MESSAGE_CLEAR = 5;
+document.addEventListener('DOMContentLoaded', function() {
+	'use strict';
 
-window.onload = function() {
+	let canvas = document.getElementsByClassName("whiteboard")[0];
+	let context = canvas.getContext("2d");
+	let ws = new WebSocket("ws://" + document.location.host + "/ws");
+	let pick = document.getElementsByClassName("colorpicker")[0];
+	let eraserButton = document.getElementById('eraser'); // Eraser
+	let wipeButton = document.getElementById('wipe'); // Wipe
+	var current = { color: 'black' };
 
-    let canvas = document.getElementById("whiteboard");
-    let ctx = canvas.getContext("2d");
-    let isDrawing = false;
+	var drawing = false;
+
+	let eraserState = 'grey'; // Initial state (off)
 	let isErasing = false;
-    let strokeColor = '';
-    let strokes = [];
 
-    let socket = new WebSocket("ws://localhost:3000/ws");
-    let otherStrokes = {};
-    let otherColors = {};
-
-    var pick = document.getElementById("colorpicker"); // Colorpicker
-  	const eraserButton = document.getElementById('color-eraser'); // Eraser
-
-	var current = {
-		isErasing: false
+	// Eraser button (if toggle)
+	eraserButton.onclick = function() {
+		isErasing = !isErasing;
+		if (isErasing) {
+			eraserButton.style.backgroundColor = 'black';
+			eraserState = 'black'; // Eraser mode on
+			console.log("%c Erase Mode is on", "color: lightgreen");
+			context.globalCompositeOperation = 'destination-out';
+		} else {
+			eraserButton.style.backgroundColor = 'grey';
+			eraserState = 'grey'; // Eraser mode off
+			console.log("%c Erase Mode is off", "color: lightgreen");
+			context.globalCompositeOperation = 'source-over';
+		}
 	};
 
-	eraserButton.addEventListener('click', toggleEraser, false);
+	// Clear whiteboard on client side
+	wipeButton.onclick = function() {
+		context.clearRect(0, 0, canvas.width, canvas.height);
+	};
 
-	function toggleEraser() {
-		current.isErasing = !current.isErasing;
+	// Function to generate a random color
+	function getRandomColor() {
+		return "#" + Math.random().toString(16).slice(2, 8).padStart(6, "0");
 	}
 
-    // Function to generate a random color
-    function getRandomColor() {
-        return "#" + Math.random().toString(16).slice(2, 8).padStart(6, "0");
-    }
+	// Function to set background-color
+	function setColor(element, color) {
+		element.style.backgroundColor = color;
+	}
 
-    // Function to set background-color and text color
-    function setColor(element, color) {
-        element.style.backgroundColor = color;
-        element.style.color = "#FFFFFF"; // Default text color (white)
-    }
+	// Function to set a cookie
+	function setCookie(name, value, days) {
+		const date = new Date();
+		date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000); // Convert days to milliseconds
+		const expires = "expires=" + date.toUTCString();
+		document.cookie = name + "=" + value + ";" + expires + ";path=/";
+	}
 
-    // Function to set a cookie
-    function setCookie(name, value, days) {
-        const date = new Date();
-        date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000); // Convert days to milliseconds
-        const expires = "expires=" + date.toUTCString();
-        document.cookie = name + "=" + value + ";" + expires + ";path=/";
-    }
+	// Function to get a cookie by name
+	function getCookie(name) {
+		const cookies = document.cookie.split(";"); // Split cookies into an array
+		for (let i = 0; i < cookies.length; i++) {
+			let cookie = cookies[i].trim(); // Trim whitespace
+			if (cookie.startsWith(name + "=")) {
+				return cookie.substring((name + "=").length); // Return the value of the cookie
+			}
+		}
+		return null; // Return null if the cookie is not found
+	}
 
-    // Function to get a cookie by name
-    function getCookie(name) {
-        const cookies = document.cookie.split(";"); // Split cookies into an array
-        for (let i = 0; i < cookies.length; i++) {
-            let cookie = cookies[i].trim(); // Trim whitespace
-            if (cookie.startsWith(name + "=")) {
-                return cookie.substring((name + "=").length); // Return the value of the cookie
-            }
-        }
-        return null; // Return null if the cookie is not found
-    }
+	// Check if a color is stored in cookies
+	let userColor = getCookie("color");
+	if (!userColor) {
+		// Generate a random color if no cookie exists
+		userColor = getRandomColor();
+		setCookie("color", userColor); // Store the color in a cookie
+	}
 
-    // Check if a color is stored in cookies
-    let userColor = getCookie("color");
-    if (!userColor) {
-        // Generate a random color if no cookie exists
-        userColor = getRandomColor();
-        setCookie("color", userColor); // Store the color in a cookie
-    }
+	// Apply the stored or newly generated color
+	setColor(pick, userColor); // Remember last saved color
+	current.color = userColor; // Change stroke to last saved color
 
-    // Apply the stored or newly generated color
-    setColor(pick, userColor);
+	// Add click event listener to change the color
+	pick.onclick = function () {
+		const newColor = getRandomColor(); // Generate a new random color
+		setCookie("color", newColor, 365); // Update the cookie with the new color
+		setColor(pick, newColor); // Apply the new color
+		current.color = newColor; // Change stroke to new color
+		console.log(`New Color: ${newColor}`);
+	};
 
-    // Add click event listener to change the color
-    pick.onclick = function () {
-        const newColor = getRandomColor(); // Generate a new random color
-        setCookie("color", newColor, 365); // Update the cookie with the new color
-        setColor(pick, newColor); // Apply the new color
-        console.log(`New Color: ${newColor}`);
-    };
+	// Drawing event websocket
+	ws.addEventListener('message', function(event) {
+		const data = JSON.parse(event.data);
+		if (data.type === 'drawing') {
+			onDrawingEvent(data);
+		}
+	});
 
-    canvas.onmousedown = function(event) {
-        isDrawing = true;
-        addPoint(event.pageX - this.offsetLeft, event.pageY - this.offsetTop, true)
-	    if (isErasing) {
-	      context.globalCompositeOperation = 'destination-out';
-	      context.strokeStyle = 'rgba(0,0,0,1)';
-	      context.lineWidth = 30; // Adjust eraser size as needed
-	    }
-    };
+	// make the canvas fill its parent
+	function onResize() {
+		canvas.width = window.innerWidth;
+		canvas.height = window.innerHeight;
+	}
 
-    canvas.onmousemove = function(event) {
-        if (isDrawing) {
-            addPoint(event.pageX - this.offsetLeft, event.pageY - this.offsetTop)
-        }
-	    if (isErasing) {
-	      context.globalCompositeOperation = 'destination-out';
-	      context.strokeStyle = 'rgba(0,0,0,1)';
-	      context.lineWidth = 30; // Adjust eraser size as needed
-	    }
-    };
+	window.addEventListener('resize', onResize, false);
+	onResize();
 
-    canvas.onmouseup = function() {
-        isDrawing = false;
-		isErasing = false;
-    }
+	// limit the number of events per second
+	function throttle(callback, delay) {
+		var previousCall = new Date().getTime();
+		return function() {
+			var time = new Date().getTime();
+			if ((time - previousCall) >= delay) {
+				previousCall = time;
+				callback.apply(null, arguments);
+			}
+		};
+	}
 
-    canvas.onmouseleave = function() {
-        isDrawing = false;
-		isErasing = false;
-    }
+	function onColorUpdate(e){
+		current.color = e.target.className.split(' ')[1];
+	}
 
+	// Mouse support for desktop devices
+	canvas.addEventListener('mousedown', onMouseDown, false);
+	canvas.addEventListener('mouseup', onMouseUp, false);
+	canvas.addEventListener('mouseout', onMouseUp, false);
+	canvas.addEventListener('mousemove', throttle(onMouseMove, 10), false);
 
-    function addPoint(x, y, newStroke) {
-        var p = {x: x, y: y}
-        if (newStroke) {
-            strokes.push([p]);
-        } else {
-            strokes[strokes.length - 1].push(p);
-        }
-        socket.send(JSON.stringify({kind: MESSAGE_STROKE, points: [p], finish: newStroke}));
-        update();
-    }
+	// Touch support for mobile devices
+	canvas.addEventListener('touchstart', onMouseDown, false);
+	canvas.addEventListener('touchend', onMouseUp, false);
+	canvas.addEventListener('touchcancel', onMouseUp, false);
+	canvas.addEventListener('touchmove', throttle(onMouseMove, 10), false);
 
-    function update() {
-        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-        ctx.lineJoin = "round";
-        ctx.lineWidth = 4;
+	function onMouseDown(e){
+		drawing = true;
+		current.x = e.clientX||e.touches[0].clientX;
+		current.y = e.clientY||e.touches[0].clientY;
+	}
 
-        // Draw mine
-        ctx.strokeStyle = getComputedStyle(pick).backgroundColor;
-        drawStrokes(strokes);
+	function onMouseUp(e){
+		if (!drawing) { return; }
+		drawing = false;
+		drawLine(current.x, current.y, e.clientX||e.touches[0].clientX, e.clientY||e.touches[0].clientY, current.color, true, isErasing);
+	}
 
-        // Draw others
-        let userIds = Object.keys(otherColors);
-        for (let i = 0; i < userIds.length; i++) {
-            let userId = userIds[i];
-            ctx.strokeStyle = otherColors[userId];
-            drawStrokes(otherStrokes[userId]);
-        }
+	function onMouseMove(e){
+		if (!drawing) { return; }
+		drawLine(current.x, current.y, e.clientX||e.touches[0].clientX, e.clientY||e.touches[0].clientY, current.color, true, isErasing);
+		current.x = e.clientX||e.touches[0].clientX;
+		current.y = e.clientY||e.touches[0].clientY;
+	}
 
-    }
+	function onDrawingEvent(data){
+		var w = canvas.width;
+		var h = canvas.height;
+		drawLine(data.x0 * w, data.y0 * h, data.x1 * w, data.y1 * h, data.color, isErasing);
+	}
 
-    function drawStrokes(strokes) {
-        for (let i = 0; i < strokes.length; i++) {
-            ctx.beginPath()
-            for (let j = 1; j < strokes[i].length; j++) {
-                let prev = strokes[i][j - 1];
-                var current = strokes[i][j];
-                ctx.moveTo(prev.x, prev.y);
-                ctx.lineTo(current.x, current.y);
-            }
-            ctx.closePath()
-            ctx.stroke();
-        }
-    }
+	function drawLine(x0, y0, x1, y1, color, broadcast, isErasing){
+		context.beginPath();
+		context.moveTo(x0, y0);
+		context.lineTo(x1, y1);
+		context.strokeStyle = color;
+		if (isErasing) {
+			context.globalCompositeOperation = 'destination-out';
+			context.lineWidth = 20; // Thicker line for eraser
+		} else {
+			context.globalCompositeOperation = 'source-over';
+			context.lineWidth = 2; // Thinner line for drawing
+		}
+		context.stroke();
+		context.closePath();
 
-    document.getElementById('wipe-button').onclick = function () {
-        strokes = [];
-        socket.send(JSON.stringify({kind: MESSAGE_CLEAR}));
-        update();
-    };
+		if (broadcast) {
+			var w = canvas.width;
+			var h = canvas.height;
 
-	const color = "#ee0e0e"; // Function to get user's color choice
+			ws.send(JSON.stringify({
+				type: isErasing ? 'erase' : 'drawing',
+				x0: x0 / w,
+				y0: y0 / h,
+				x1: x1 / w,
+				y1: y1 / h,
+				color: color
+			}));
+		}
+	}
 
-    socket.onmessage = function(event) {
-        let messages = event.data.split('\n');
-        for (let i = 0; i < messages.length; i++) {
-            let message = JSON.parse(messages[i]);
-            onMessage(message);
-        }
-    }
+	// Check if the browser supports WebSocket
+	if (window["WebSocket"]) {
+		function establishConnection() {
+			// Establish a WebSocket connection to the server
+			ws = new WebSocket("ws://" + document.location.host + "/ws");
 
-    function onMessage(message) {
-        switch (message.kind) {
-            case MESSAGE_CONNECTED:
-                strokeColor = message.color;
-                for (let i = 0; i < message.users.length; i++) {
-                    let user = message.users[i];
-                    otherColors[user.id] = user.color;
-                    otherStrokes[user.id] = [];
-                }
-                break;
-            case MESSAGE_USER_JOINED:
-                otherColors[message.user.id] = message.user.color;
-                otherStrokes[message.user.id] = [];
-                break;
-            case MESSAGE_USER_LEFT:
-                delete otherColors[message.userId];
-                delete otherStrokes[message.userId];
-                update();
-                break;
-            case MESSAGE_STROKE:
-                if (message.finish) {
-                    otherStrokes[message.userId].push(message.points);
-                } else {
-                    let strokes = otherStrokes[message.userId];
-                    strokes[strokes.length - 1] = strokes[strokes.length - 1].concat(message.points);
-                }
-                update();
-                break;
-            case MESSAGE_CLEAR:
-                otherStrokes[message.userId] = [];
-                update();
-                break;
-        }
-    }
+			// Event handler when open
+			ws.onopen = function(evt) {
+				console.log("%c Connection established", "color: red");
+			};
 
-}
+			// Event handler for when the WebSocket connection is closed
+			ws.onclose = function(evt) {
+				console.log("%c Connection closed, reconnecting...", "color: red");
+				setTimeout(reconnect, 2000); // Reconnect after a delay
+			};
+
+			let drawingQueue = [];
+			let isProcessing = false;
+
+			var w = canvas.width;
+			var h = canvas.height;
+
+			function processDrawingQueue() {
+			  if (isProcessing || drawingQueue.length === 0) return;
+
+			  isProcessing = true;
+			  const batchSize = 200; // Adjust this value based on performance
+
+			  function processPoints() {
+			    const ctx = canvas.getContext('2d');
+			    ctx.beginPath();
+
+			    for (let i = 0; i < batchSize && drawingQueue.length > 0; i++) {
+			      const point = drawingQueue.shift();
+			      ctx.moveTo(point.x0 * w, point.y0 * h);
+			      ctx.lineTo(point.x1 * w, point.y1 * h);
+			      ctx.strokeStyle = point.color;
+			      ctx.lineWidth = point.type === 'erase' ? 20 : 2;
+			      ctx.globalCompositeOperation = point.type === 'erase' ? 'destination-out' : 'source-over';
+			    }
+
+			    ctx.stroke();
+
+			    if (drawingQueue.length > 0) {
+			      requestAnimationFrame(processPoints);
+			    } else {
+			      isProcessing = false;
+			    }
+			  }
+
+			  requestAnimationFrame(processPoints);
+			}
+
+			// Drawing event websocket
+			ws.onmessage = function(evt) {
+				// Event handler for when a message is received from the server
+			  const data = JSON.parse(evt.data);
+
+				// Log raw data for debugging
+				console.log("Raw data received:", evt.data);
+
+				if (data.type === 'initialDrawing') {
+					drawingQueue = drawingQueue.concat(data.points);
+				} else if (data.type === 'drawing' || data.type === 'erase') {
+					drawingQueue.push(data);
+				}
+
+				processDrawingQueue();
+
+			  if (data.type === 'drawing') {
+			    onDrawingEvent(data);
+			  }
+			}
+		}
+
+		// Function to reconnect
+		function reconnect() {
+			console.log('Reconnecting...');
+			establishConnection(); // Attempt to reconnect
+		}
+
+		// Establish the initial connection
+		establishConnection();
+	} else {
+		// If WebSockets are not supported by the browser, display an error message
+		var item = document.createElement("div");
+		item.innerHTML = "<b>Your browser does not support WebSockets.</b>"; // Bold error message
+		appendLog(item); // Append the error message to the log
+	}
+});
