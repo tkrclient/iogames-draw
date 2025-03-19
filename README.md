@@ -12,6 +12,8 @@
 - has wipe clipboard (client-side only, because annoying...)
 - extremely small codebase (less than 1000 loc, not counting dependencies)
 - only about five dependencies
+- remembers the last color you had (with cookie)
+- gives you random color if new user (no cookie)
 
 ## Whiteboard Example
 
