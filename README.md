@@ -25,7 +25,7 @@ This application is the whiteboard application.
 Build and run the server.
 
     $ npm install
-		$ npm install ws
+    $ npm install ws
     $ npm start
 
 To use the whiteboard example, open http://localhost:4000/home.html in your browser.
