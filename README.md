@@ -10,6 +10,8 @@
 - has eraser feature
 - remembers, by default, the last 10000 drawing points...
 - has wipe clipboard (client-side only, because annoying...)
+- extremely small codebase (less than 1000 loc, not counting dependencies)
+- only about five dependencies
 
 ## Whiteboard Example
 
