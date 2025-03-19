@@ -14,6 +14,7 @@
 - only about five dependencies
 - remembers the last color you had (with cookie)
 - gives you random color if new user (no cookie)
+- touch screen support!
 
 ## Whiteboard Example
 
