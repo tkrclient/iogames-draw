@@ -16,13 +16,29 @@
 - gives you random color if new user (no cookie)
 - touch screen support!
 
-## Whiteboard Example
+## Chat Example
 
-This application is the whiteboard application.
+This application shows how to use the
+[websocket](https://github.com/gorilla/websocket) package to implement a simple
+web chat application.
 
 ## Running the example
 
-Build and run the server.
+
+## Whiteboard Example
+
+This application shows hot to use the
+[websocket](https://www.npmjs.com/package/ws) dependency to implement a simple
+whiteboard application.
+
+## Running the example
+
+The example requires a working npm/nodejs development environment. The [Getting 
+Started](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) page describes how to install the
+development environment. Or just install from your package manager.
+
+Once you have npm up and running, you can download, build and run the example
+using the following commands.
 
     $ npm install
     $ npm start
