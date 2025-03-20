@@ -3,18 +3,18 @@
 ![png](screenshots/screenshot.png)
 
 ## Features of this whiteboard
-- can change color
-- can change speed of how fast to load drawings...
-- exposed websocket, so you can customize client side
-- using nodejs ws backend
-- has eraser feature
-- remembers, by default, the last 10000 drawing points...
-- has wipe clipboard (client-side only, because annoying...)
-- extremely small codebase (less than 1000 loc, not counting dependencies)
-- only about five dependencies
-- remembers the last color you had (with cookie)
-- gives you random color if new user (no cookie)
-- touch screen support!
+- Can change color
+- Can change speed of how fast to load drawings...
+- Exposed websocket, so you can customize client side
+- Using nodejs ws backend
+- Has eraser feature
+- Remembers, by default, the last 10000 drawing points...
+- Has wipe clipboard (client-side only, because annoying...)
+- Extremely small codebase (less than 1000 loc, not counting dependencies)
+- Only about five dependencies
+- Remembers the last color you had (with cookie)
+- Gives you random color if new user (no cookie)
+- Touch screen support!
 
 ## Whiteboard Example
 
