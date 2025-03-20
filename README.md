@@ -16,15 +16,6 @@
 - gives you random color if new user (no cookie)
 - touch screen support!
 
-## Chat Example
-
-This application shows how to use the
-[websocket](https://github.com/gorilla/websocket) package to implement a simple
-web chat application.
-
-## Running the example
-
-
 ## Whiteboard Example
 
 This application shows hot to use the
