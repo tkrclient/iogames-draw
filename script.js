@@ -190,7 +190,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		function establishConnection() {
 			// Event handler when open
 			ws.onopen = function(evt) {
-				console.log("%c Connection established to whiteboard", "color: green");
+				console.log("%c Connection established to whiteboard", "color: lightgreen");
 			};
 
 			// Event handler for when the WebSocket connection is closed
