@@ -10,7 +10,6 @@ document.addEventListener('DOMContentLoaded', function() {
 	var current = { color: 'black' };
 
 	var drawing = false;
-
 	let eraserState = 'grey'; // Initial state (off)
 	let isErasing = false;
 
@@ -189,9 +188,6 @@ document.addEventListener('DOMContentLoaded', function() {
 	// Check if the browser supports WebSocket
 	if (window["WebSocket"]) {
 		function establishConnection() {
-			// Establish a WebSocket connection to the server
-			ws = new WebSocket("ws://" + document.location.host + "/ws");
-
 			// Event handler when open
 			ws.onopen = function(evt) {
 				console.log("%c Connection established", "color: red");
@@ -213,7 +209,7 @@ document.addEventListener('DOMContentLoaded', function() {
 			  if (isProcessing || drawingQueue.length === 0) return;
 
 			  isProcessing = true;
-			  const batchSize = 200; // Adjust this value based on performance
+			  const batchSize = 1000; // Adjust this value based on performance
 
 			  function processPoints() {
 			    const ctx = canvas.getContext('2d');
@@ -271,9 +267,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		// Establish the initial connection
 		establishConnection();
 	} else {
-		// If WebSockets are not supported by the browser, display an error message
-		var item = document.createElement("div");
-		item.innerHTML = "<b>Your browser does not support WebSockets.</b>"; // Bold error message
-		appendLog(item); // Append the error message to the log
+		// If WebSockets are not supported by the browser, show an error message in console log
+		console.error("%c Your browser does not support WebSockets.", "color: red");
 	}
 });
