@@ -190,7 +190,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		function establishConnection() {
 			// Event handler when open
 			ws.onopen = function(evt) {
-				console.log("%c Connection established", "color: red");
+				console.log("%c Connection established to whiteboard", "color: green");
 			};
 
 			// Event handler for when the WebSocket connection is closed
@@ -238,11 +238,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
 			// Drawing event websocket
 			ws.onmessage = function(evt) {
+				// Log raw data for debugging
+				// console.log("Raw data received:", evt.data);
+
 				// Event handler for when a message is received from the server
 			  const data = JSON.parse(evt.data);
-
-				// Log raw data for debugging
-				console.log("Raw data received:", evt.data);
 
 				if (data.type === 'initialDrawing') {
 					drawingQueue = drawingQueue.concat(data.points);
