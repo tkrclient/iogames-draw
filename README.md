@@ -19,7 +19,7 @@
 ## Whiteboard Example
 
 This application shows how to use the
-[websocket](https://www.npmjs.com/package/ws) dependency to implement a simple
+[websocket](https://www.npmjs.com/package/ws) package to implement a simple
 whiteboard application.
 
 ## Running the example
