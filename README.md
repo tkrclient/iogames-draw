@@ -24,7 +24,7 @@ whiteboard application.
 
 ## Running the example
 
-The example requires a working npm/nodejs development environment. The [Getting 
+The example requires a working npm development environment. The [Getting 
 Started](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) page describes how to install the
 development environment. Or just install from your package manager.
 
